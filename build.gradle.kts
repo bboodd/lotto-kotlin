@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.2.21"
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
 group = "com.www"
@@ -15,6 +16,16 @@ dependencies {
 
 kotlin {
     jvmToolchain(21)
+}
+
+ktlint {
+    ignoreFailures.set(true)
+    verbose.set(true)
+    outputToConsole.set(true)
+    filter {
+        exclude("**/generated/**")
+        include("**/kotlin/**")
+    }
 }
 
 tasks.test {

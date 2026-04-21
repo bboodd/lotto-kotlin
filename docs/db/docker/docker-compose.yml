@@ -1,0 +1,22 @@
+services:
+    postgresql:
+        image: postgres:16-alpine
+        container_name: lottery-postgresql
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_DB: lottery_local
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: admin!32
+            TZ: Asia/Seoul
+        volumes:
+            - lottery-pgdata:/var/lib/postgresql/data
+            - ../scheme/scheme.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U admin -d lottery_local"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+volumes:
+    lottery-pgdata:

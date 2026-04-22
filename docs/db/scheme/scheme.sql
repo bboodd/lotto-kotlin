@@ -1,6 +1,7 @@
 -- 0. ENUM 타입 정의
 CREATE TYPE lottery_purchase_type AS ENUM ('MANUAL', 'AUTO', 'SEMI_AUTO');
-CREATE TYPE money_history_type AS ENUM ('CHARGE', 'BUY', 'WIN', 'WITHDRAW', 'REFUND');
+CREATE TYPE money_history_type AS ENUM ('CHARGE', 'BUY', 'WIN');
+CREATE TYPE lottery_status_type AS ENUM ('READY', 'WIN', 'LOSE');
 
 -- 1. t_user 테이블
 CREATE TABLE t_user (
@@ -29,7 +30,7 @@ CREATE TABLE t_lottery_history (
                                    selected_numbers INTEGER[] NOT NULL,
                                    selected_bonus_number INTEGER,
                                    type lottery_purchase_type NOT NULL,
-                                   status VARCHAR(50) DEFAULT 'READY',
+                                   status lottery_status_type DEFAULT 'READY' NOT NULL,
                                    winning_rank INTEGER,
                                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

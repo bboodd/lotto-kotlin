@@ -12,7 +12,9 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    implementation("org.postgresql:postgresql:42.7.4")
+    implementation("com.zaxxer:HikariCP:5.1.0")
+    implementation("ch.qos.logback:logback-classic:1.4.14")
+    implementation("org.postgresql:postgresql:42.7.7")
 }
 
 kotlin {

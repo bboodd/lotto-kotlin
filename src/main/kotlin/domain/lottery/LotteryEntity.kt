@@ -1,11 +1,9 @@
 package com.www.domain.lottery
 
+import com.www.domain.model.BaseEntity
+
 class LotteryEntity(
-    val seq: Int,
     val times: Int,
     val winningNumbers: List<Int>,
-    val bonusNumber: Int,
-    val createdAt: String,
-    val updatedAt: String
-) {
-}
+    val bonusNumber: Int
+) : BaseEntity()

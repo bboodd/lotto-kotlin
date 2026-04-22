@@ -4,7 +4,7 @@ import com.www.domain.model.BaseEntity
 
 class UserMoneyHistoryEntity(
     val userSeq: Int,
-    val lotteryHistorySeq: Int?,
+    val lotteryHistorySeq: Int? = null,
     val type: UserMoneyHistoryType,
     val amount: Int,
     val balanceAfter: Int

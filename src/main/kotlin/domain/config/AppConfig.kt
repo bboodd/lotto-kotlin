@@ -18,7 +18,7 @@ class AppConfig(
     val userMoneyHistoryRepository = UserMoneyHistoryRepository()
     val lotteryHistoryRepository = LotteryHistoryRepository()
 
-    val userService = UserService(dataSource, userRepository)
+    val userService = UserService(dataSource, userRepository, userMoneyHistoryRepository)
     val lotteryService = LotteryService(dataSource, lotteryRepository)
     val userMoneyHistoryService = UserMoneyHistoryService(dataSource, userMoneyHistoryRepository)
     val lotteryHistoryService = LotteryHistoryService(dataSource, lotteryHistoryRepository)

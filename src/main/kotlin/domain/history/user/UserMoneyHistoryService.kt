@@ -10,4 +10,9 @@ class UserMoneyHistoryService(
         dataSource.connection.use { conn ->
             userMoneyHistoryRepository.findBySeq(conn, seq)
         }
+
+    fun registerHistory(entity: UserMoneyHistoryEntity) =
+        dataSource.connection.use { conn ->
+            userMoneyHistoryRepository.insert(conn, entity)
+        }
 }

@@ -4,17 +4,12 @@ class LotteryProgram {
     companion object {
         private const val NUMBER_OF_TICKETS = 6
         private const val LOTTERY_PRICE = 1000
-        private const val FIRST = 2100000000
-        private const val SECOND = 60000000
-        private const val THIRD = 1500000
-        private const val FOURTH = 50000
-        private const val FIFTH = 5000
         private const val MANUAL = 1
         private const val AUTO = 2
         private const val SEMI_AUTO = 3
     }
 
-    var balance = 0
+    var balance = 0L
     val tickets: MutableList<LotteryTicket> = mutableListOf()
     var lastRound = (LotteryRepository.loadLast()?.round ?: 0) + 1
 
@@ -26,41 +21,39 @@ class LotteryProgram {
     }
 
     fun entry() {
-//        println("로또 구매를 시작합니다.")
         println("현재 잔액은 ${balance}원 입니다.")
         println("현재 회차는 ${lastRound}회 입니다")
         println("진행을 원하시는 번호를 입력 해 주세요.")
         println("0.시스템 종료 1.입금 2.로또 구매 3.이전 회차 당첨 번호 확인 4.$lastRound 회차 종료 및 로또 당첨 확인")
         try {
             val input = readln().toInt()
-            if (input == 0) {
-                return
-            } else if (input == 1) {
-                deposit()
-            } else if (input == 2) {
-                buyTickets()
-            } else if (input == 3) {
-                println("몇 회차 번호를 확인 하시겠습니까?")
-                val time = readln().toInt()
-                if (time <= 0) {
-                    println("잘못된 입력입니다. 다시 입력해주세요.")
-                    entry()
-                } else if (time > lastRound) {
-                    println("존재하지 않는 회차입니다. 다시 입력해주세요.")
-                    entry()
-                } else {
-                    val findHistory = LotteryRepository.loadByRound(time)
-                    println(findHistory?.numbers?.joinToString() + "보너스: ${findHistory?.bonus}")
-                }
-            } else if (input == 4) {
-                checkWinning()
-            } else {
-                entry()
+            when (input) {
+                0 -> return
+                1 -> deposit()
+                2 -> buyTickets()
+                3 -> findLotteryHistoryByRound()
+                4 -> checkWinning()
+                else -> entry()
             }
         } catch (e: Exception) {
             println("잘못된 입력 입니다 다시 입력 해 주세요.")
             entry()
         }
+    }
+
+    fun findLotteryHistoryByRound() {
+        println("몇 회차 번호를 확인 하시겠습니까?")
+        val round = readln().toInt()
+        if (round <= 0) {
+            println("잘못된 입력입니다.")
+        } else if (round > lastRound) {
+            println("존재하지 않는 회차입니다.")
+        } else {
+            val findHistory = LotteryRepository.loadByRound(round)
+            println("${findHistory?.round} 회차 번호")
+            println(findHistory?.numbers?.joinToString() + "보너스: ${findHistory?.bonus}")
+        }
+        entry()
     }
 
     fun deposit() {
@@ -79,64 +72,22 @@ class LotteryProgram {
     fun checkWinning() {
         println("$lastRound 회차 로또 당첨을 확인합니다.")
         println("구매한 총 복권 ${tickets.size}개")
-        val winningLottery = (1..45).shuffled().take(6).sorted()
-        val winningBonus: Int = (1..45).filter { it !in winningLottery }.shuffled().first()
-        var totalWinningAmount = 0
-        var firstCount = 0
-        var secondCount = 0
-        var thirdCount = 0
-        var fourthCount = 0
-        var fifthCount = 0
-        var loseCount = 0
+
+        val winningLottery = WinningLottery.generate()
+        println("당첨번호: ${winningLottery.ticket} 보너스 번호: ${winningLottery.bonus}")
+
+        var totalWinningAmount = 0L
         for (ticket in tickets) {
-            println("당첨번호: ${winningLottery.joinToString()} 보너스 번호: $winningBonus")
-            println("구매한 번호: $ticket")
-            val intersection = ticket.intersect(winningLottery.toSet())
-            when (intersection.size) {
-                6 -> {
-                    println("1등 당첨")
-                    firstCount++
-                    totalWinningAmount += FIRST
-                }
+            val rank = winningLottery.match(ticket)
+            totalWinningAmount += rank.prize
 
-                5 -> {
-                    if (ticket.contains(winningBonus)) {
-                        println("2등 당첨")
-                        secondCount++
-                        totalWinningAmount += SECOND
-                    } else {
-                        println("3등 당첨")
-                        thirdCount++
-                        totalWinningAmount += THIRD
-                    }
-                }
-
-                4 -> {
-                    println("4등 당첨")
-                    fourthCount++
-                    totalWinningAmount += FOURTH
-                }
-
-                3 -> {
-                    println("5등 당첨")
-                    fifthCount++
-                    totalWinningAmount += FIFTH
-                }
-
-                else -> {
-                    println("꽝")
-                    loseCount++
-                }
-            }
+            println("구매한 번호: $ticket -> ${rank.comment}")
         }
 
-        // 로또 저장
-        LotteryRepository.save(winningLottery, winningBonus)
-        // 최신 회차 갱신
-        winningLotteries = LotteryRepository.loadAll()
-
-        println("1등: $firstCount, 2등: $secondCount, 3등: $thirdCount, 4등: $fourthCount, 5등: $fifthCount, 꽝: $loseCount")
+        LotteryRepository.save(winningLottery.ticket.numbers.map { it.number }, winningLottery.bonus.number)
+        lastRound += 1
         println("총 당첨금액: $totalWinningAmount")
+
         entry()
     }
 

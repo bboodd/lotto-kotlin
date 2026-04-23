@@ -21,7 +21,7 @@ data class LotteryTicket(
         require(numbers.size == TICKET_SIZE) { "로또 번호는 6개여야 합니다." }
     }
 
-    override fun toString(): String = numbers.joinToString(", ") { it.number.toString() }
+//    override fun toString(): String = numbers.joinToString(", ") { it.number.toString() }
 
     fun getMatchCount(ticket: LotteryTicket): Int = this.numbers.intersect(ticket.numbers.toSet()).size
 }

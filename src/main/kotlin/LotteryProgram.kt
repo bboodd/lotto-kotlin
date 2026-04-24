@@ -2,11 +2,8 @@ package com.www
 
 class LotteryProgram {
     companion object {
-        private const val NUMBER_OF_TICKETS = 6
         private const val LOTTERY_PRICE = 1000
-        private const val MANUAL = 1
-        private const val AUTO = 2
-        private const val SEMI_AUTO = 3
+        private const val TICKET_STRATEGY_INPUT = 3
     }
 
     var balance = 0L
@@ -15,18 +12,20 @@ class LotteryProgram {
 
     fun start() {
         println("\n***********************************************")
-        println("*****************Lottery started*************")
-        println("***********************************************\n")
+        println("*****************Lottery started***************")
+        println("***********************************************")
         entry()
     }
 
     fun entry() {
-        println("현재 잔액은 ${balance}원 입니다.")
+        println("\n현재 잔액은 ${balance}원 입니다.")
         println("현재 회차는 ${lastRound}회 입니다")
         println("진행을 원하시는 번호를 입력 해 주세요.")
-        println("0.시스템 종료 1.입금 2.로또 구매 3.이전 회차 당첨 번호 확인 4.$lastRound 회차 종료 및 로또 당첨 확인")
+        println("0. 프로그램 종료 1. 입금 2. 로또 구매 3. 이전 회차 당첨 번호 확인 4. ${lastRound}회차 종료 및 로또 당첨 확인")
         try {
-            val input = readln().toInt()
+            val input = getZeroWithPositiveIntInput()
+            if (input !in 0..5) throw Exception()
+
             when (input) {
                 0 -> return
                 1 -> deposit()
@@ -43,15 +42,15 @@ class LotteryProgram {
 
     fun findLotteryHistoryByRound() {
         println("몇 회차 번호를 확인 하시겠습니까?")
-        val round = readln().toInt()
-        if (round <= 0) {
-            println("잘못된 입력입니다.")
+        val round = getZeroWithPositiveIntInput()
+        if (round == lastRound) {
+            println("현재 회차는 아직 확인 하실 수 없습니다")
         } else if (round > lastRound) {
             println("존재하지 않는 회차입니다.")
         } else {
             val findHistory = LotteryRepository.loadByRound(round)
-            println("${findHistory?.round} 회차 번호")
-            println(findHistory?.numbers?.joinToString() + "보너스: ${findHistory?.bonus}")
+            println("${findHistory?.round}회차 번호")
+            println("[" + findHistory?.numbers?.joinToString() + "]" + " 보너스: ${findHistory?.bonus}")
         }
         entry()
     }
@@ -59,12 +58,11 @@ class LotteryProgram {
     fun deposit() {
         println("얼마를 입급하시겠습니까?")
         try {
-            val input = readln().toInt()
+            val input = getZeroWithPositiveIntInput()
             balance += input
             entry()
         } catch (e: Exception) {
-            println("숫자만 입력 해 주세요")
-            // TODO: 추가 유효성검사
+            println("잘못된 입력 입니다 다시 입력 해주세요")
             deposit()
         }
     }
@@ -92,87 +90,132 @@ class LotteryProgram {
     }
 
     fun buyTickets() {
-        println("로또를 구매합니다. 1장에 1000원")
-        println("현재 잔액 ${balance}원")
-        println("몇 장을 구매하시겠습니까? 숫자를 입력 해 주세요(0.취소 1~100 사이로 입력 해 주세요")
+        println("로또를 구매합니다. 1장에 ${LOTTERY_PRICE}원 / 현재 잔액 ${balance}원")
+        println("구매할 총 장수를 입력하세요")
+
         try {
-            val input = readln().toInt()
-            if (input == 0) {
-                entry()
-            } else if (input * LOTTERY_PRICE > balance) {
+            val totalCount = getPositiveIntInput()
+            val totalPrice = totalCount * LOTTERY_PRICE
+
+            if (totalPrice > balance) {
                 println("잔액이 부족합니다.")
-                buyTickets()
-            } else {
-                println("자동을 몇 장 구매하시겠습니까?")
-                val autoTicket = readln().toInt()
-                println("수동을 몇 장 구매하시겠습니까?")
-                val manualTicket = readln().toInt()
-                println("반자동을 몇 장 구매하시겠습니까?")
-                val semiAutoTicket = readln().toInt()
-
-                println("총 구매 금액: ${input * LOTTERY_PRICE}원")
-                println("총 자동: ${autoTicket}장 수동: ${manualTicket}장 반자동: ${semiAutoTicket}장")
-
-                balance -= input * LOTTERY_PRICE
-
-                println("자동을 ${autoTicket}장 구입합니다")
-                issueTicket(AUTO, autoTicket)
-                println("수동을 ${manualTicket}장 구입합니다")
-                issueTicket(MANUAL, manualTicket)
-                println("반자동을 ${semiAutoTicket}장 구입합니다")
-                issueTicket(SEMI_AUTO, semiAutoTicket)
-
-                println("티켓이 발급되었습니다.")
-                println("남은 잔액 $${balance}원")
+                return buyTickets()
             }
+
+            println("자동, 수동, 반자동 장수를 차례대로 입력하세요 (예: 2 1 1):")
+            val (auto, manual, semi) =
+                getZeroWithPositiveIntInputWithSpace(
+                    TICKET_STRATEGY_INPUT,
+                    TICKET_STRATEGY_INPUT
+                )
+
+            if (auto + manual + semi != totalCount) {
+                println("입력한 장수의 합이 총 구매 장수와 다릅니다.")
+                return buyTickets()
+            }
+
+            issueTickets(AutoTicketIssueStrategy(), auto)
+            issueTickets(ManualTicketIssueStrategy(), manual)
+            issueTickets(SemiAutoTicketIssueStrategy(), semi)
+
+            balance -= totalPrice
+            println("티켓이 발급되었습니다. / 남은 잔액 ${balance}원")
+            entry()
         } catch (e: Exception) {
-            println("숫자만 입력 해 주세요")
+            println("잘못된 입력입니다 다시 입력해주세요")
             buyTickets()
         }
     }
 
-    fun issueTicket(
-        type: Int,
+    private fun issueTickets(
+        strategy: TicketIssueStrategy,
         count: Int
     ) {
-        if (count == 0) return
-        for (i in 0..count) {
-            when (type) {
-                MANUAL -> tickets.add(generateManualTicket(NUMBER_OF_TICKETS))
-                AUTO -> tickets.add(generateAutoTicket(NUMBER_OF_TICKETS))
-                SEMI_AUTO -> tickets.add(generateSemiAutoTicket())
-            }
+        repeat(count) {
+            val ticket = strategy.issueTicket()
+            tickets.add(ticket)
         }
     }
+}
 
-    private fun generateAutoTicket(count: Int): List<Int> = (1..45).shuffled().take(count).sorted()
+fun getPositiveIntInput(): Int {
+    val input = readln().toIntOrNull()
+    return if (input != null && input > 0) {
+        input
+    } else {
+        println("양수를 입력해주세요")
+        getPositiveIntInput()
+    }
+}
 
-    private fun generateManualTicket(count: Int): List<Int> {
-        try {
-            print("$count 개의 번호를 입력 해 주세요(1-45 사이의 숫자를 띄어쓰기로 구분하여 입력 해 주세요)")
-            val input = readln().split(" ").map { it.toInt() }
-            return input
+fun getZeroWithPositiveIntInput(): Int {
+    val input = readln().toIntOrNull()
+    return if (input != null && input >= 0) {
+        input
+    } else {
+        println("양수를 입력해주세요")
+        getZeroWithPositiveIntInput()
+    }
+}
+
+fun getZeroWithPositiveIntInputWithSpace(
+    minSize: Int,
+    maxSize: Int
+): List<Int> {
+    val line = readln()
+    val parts = line.split(" ").filter { it.isNotBlank() }
+    val numbers = parts.mapNotNull { it.toIntOrNull() }
+
+    return if (parts.size != numbers.size || numbers.any { it < 0 } || numbers.size !in minSize..maxSize) {
+        println("유효하지 않은 입력입니다. 다시 입력해주세요")
+        getZeroWithPositiveIntInputWithSpace(minSize, maxSize)
+    } else {
+        numbers
+    }
+}
+
+interface TicketIssueStrategy {
+    fun issueTicket(): LotteryTicket
+}
+
+class AutoTicketIssueStrategy : TicketIssueStrategy {
+    override fun issueTicket(): LotteryTicket {
+        val ticket = LotteryTicket.generate()
+        println("[자동] $ticket")
+        return ticket
+    }
+}
+
+class ManualTicketIssueStrategy : TicketIssueStrategy {
+    override fun issueTicket(): LotteryTicket {
+        println("6개의 번호를 입력해 주세요 (1-45 사이의 숫자를 띄어쓰기로 구분하여 입력 해 주세요)")
+        return try {
+            val input = getZeroWithPositiveIntInputWithSpace(LotteryTicket.TICKET_SIZE, LotteryTicket.TICKET_SIZE)
+            val ticket = LotteryTicket(input.map { LotteryNumber(it) })
+            println("[수동] $ticket")
+            return ticket
         } catch (e: Exception) {
-            println("잘못된 입력 입니다 다시 입력 해 주세요")
-            return generateManualTicket(count)
+            println("잘못된 입력입니다 다시 입력해주세요")
+            issueTicket()
         }
     }
+}
 
-    private fun generateSemiAutoTicket(): List<Int> {
-        var autoCount = 0
-        var manualCount = 0
-
-        try {
-            println("자동으로 선택 할 번호의 개수를 입력 해 주세요.")
-            autoCount = readln().toInt()
-            println("수등으로 선택 할 번호의 개수를 입력 해 주세요")
-            manualCount = readln().toInt()
-            val autoTicket = generateAutoTicket(autoCount)
-            val manualTicket = generateManualTicket(manualCount)
-            return autoTicket + manualTicket
+class SemiAutoTicketIssueStrategy : TicketIssueStrategy {
+    override fun issueTicket(): LotteryTicket {
+        return try {
+            println("수동으로 선택할 번호들을 띄어쓰기로 구분하여 입력해 주세요 1개~6개  (나머지 자동)")
+            val input =
+                getZeroWithPositiveIntInputWithSpace(
+                    LotteryTicket.SEMI_AUTO_MIN_MANUAL_TICKET_SIZE,
+                    LotteryTicket.SEMI_AUTO_MAX_MANUAL_TICKET_SIZE
+                )
+            val ticket = LotteryTicket.generateSemiAuto(input.map { LotteryNumber(it) })
+            println("[반자동] $ticket")
+            return ticket
         } catch (e: Exception) {
-            println("잘못된 입력입니다 다시 입력 해 주세요")
-            return generateSemiAutoTicket()
+            println("잘못된 입력입니다 다시 입력해주세요")
+            issueTicket()
         }
     }
 }

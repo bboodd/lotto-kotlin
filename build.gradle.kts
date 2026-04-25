@@ -3,7 +3,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
-group = "com.www"
+group = "study.lotto"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -19,7 +19,7 @@ kotlin {
 }
 
 ktlint {
-    ignoreFailures.set(true)
+    ignoreFailures.set(false)
     verbose.set(true)
     outputToConsole.set(true)
     filter {

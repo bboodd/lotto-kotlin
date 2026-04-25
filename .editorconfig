@@ -11,7 +11,6 @@ tab_width = 4
 trim_trailing_whitespace = true
 
 [*.{kt,kts}]
-ktlint_standard_no-wildcard-imports = disabled
-# 후행쉼표 제약 비활성화
-ij_kotlin_allow_trailing_comma = false
-ij_kotlin_allow_trailing_comma_on_call_site = false
+
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true

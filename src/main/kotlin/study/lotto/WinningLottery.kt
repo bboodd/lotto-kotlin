@@ -5,6 +5,6 @@ data class WinningLottery(
     val bonus: LotteryNumber,
 ) {
     init {
-        require(!ticket.numbers.contains(bonus)) { OutputUtil.printBonusNumberIsDoNotInTicketNumber() }
+        require(!ticket.numbers.contains(bonus)) { "보너스 번호는 당첨 번호와 중복될 수 없습니다." }
     }
 }

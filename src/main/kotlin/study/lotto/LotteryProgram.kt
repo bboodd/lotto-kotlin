@@ -3,10 +3,6 @@ package study.lotto
 import study.lotto.InputUtil.getZeroWithPositiveIntInput
 
 class LotteryProgram {
-    companion object {
-        private const val LOTTERY_PRICE = 1000
-    }
-
     var wallet = Wallet()
     val tickets: MutableList<LotteryTicket> = mutableListOf()
     var lastRound = (LotteryRepository.loadLast()?.round ?: 0) + 1
@@ -88,10 +84,13 @@ class LotteryProgram {
             val totalCount = InputUtil.receiveTotalTicketCount(LOTTERY_PRICE, wallet.balance)
             val totalPrice = (totalCount * LOTTERY_PRICE).toLong()
 
-            val counts = InputUtil.receiveStrategyCounts(totalCount)
+            val strategyCounts = InputUtil.receiveStrategyCounts(totalCount)
 
             wallet.pay(totalPrice)
-            tickets.addAll(LotteryMachine.issue(counts))
+
+            issueAuto(strategyCounts.auto)
+            issueManual(strategyCounts.manual)
+            issueSemiAuto(strategyCounts.semi)
 
             OutputUtil.printIssued(wallet.balance)
             entry()
@@ -99,5 +98,34 @@ class LotteryProgram {
             OutputUtil.printInvalidInput()
             buyTickets()
         }
+    }
+
+    fun issueAuto(count: Int) =
+        repeat(count) {
+            val ticket = LotteryMachine.issue(AutoTicketIssueStrategy())
+            tickets.add(ticket)
+            OutputUtil.printAutoTicket(ticket)
+        }
+
+    fun issueManual(count: Int) =
+        repeat(count) {
+            OutputUtil.printManualInputPrompt()
+            val numbers = InputUtil.receiveLotteryNumbers()
+            val ticket = LotteryMachine.issue(ManualTicketIssueStrategy(numbers))
+            tickets.add(ticket)
+            OutputUtil.printManualTicket(ticket)
+        }
+
+    fun issueSemiAuto(count: Int) =
+        repeat(count) {
+            OutputUtil.printSemiAutoInManualInputPrompt()
+            val fixedNumbers = InputUtil.receiveSemiAutoNumbers()
+            val ticket = LotteryMachine.issue(SemiAutoTicketIssueStrategy(fixedNumbers))
+            tickets.add(ticket)
+            OutputUtil.printSemiAutoTicket(ticket)
+        }
+
+    companion object {
+        private const val LOTTERY_PRICE = 1000
     }
 }

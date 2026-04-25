@@ -1,8 +1,8 @@
 package study.lotto
 
-object LotteryTicketGenerator {
-    private val ALL_NUMBERS = (LotteryNumber.MIN..LotteryNumber.MAX).map { LotteryNumber(it) }
+import study.lotto.LotteryNumber.Companion.ALL_NUMBERS
 
+object LotteryTicketGenerator {
     fun generateAuto(): LotteryTicket {
         val lotteryNumbers = ALL_NUMBERS.shuffled().take(LotteryTicket.TICKET_SIZE).toSortedSet()
         return LotteryTicket(lotteryNumbers)

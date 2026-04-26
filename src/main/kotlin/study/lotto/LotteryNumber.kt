@@ -15,6 +15,8 @@ value class LotteryNumber(
     companion object {
         const val MIN = 1
         const val MAX = 45
+
+        @JvmStatic
         val ALL_NUMBERS = (MIN..MAX).map { LotteryNumber(it) }
     }
 }

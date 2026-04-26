@@ -7,7 +7,7 @@ value class LotteryTicket(
     val numbers: SortedSet<LotteryNumber>,
 ) {
     init {
-        require(numbers.size == TICKET_SIZE) { "로또 번호는 6개여야 합니다." }
+        require(numbers.size == TICKET_SIZE) { "로또 번호는 ${TICKET_SIZE}개여야 합니다." }
     }
 
     override fun toString(): String = numbers.joinToString(", ")

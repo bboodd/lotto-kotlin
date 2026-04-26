@@ -16,15 +16,14 @@ class LotteryProgram {
         OutputUtil.printMenu(wallet.balance, lastRound)
         try {
             val input = getZeroWithPositiveIntInput()
-            if (input !in 0..5) throw Exception()
+            val menu = MenuOption.from(input) ?: throw IllegalArgumentException("유효하지 않은 메뉴입니다")
 
-            when (input) {
-                0 -> return
-                1 -> deposit()
-                2 -> buyTickets()
-                3 -> findLotteryHistoryByRound()
-                4 -> checkWinning()
-                else -> entry()
+            when (menu) {
+                MenuOption.EXIT -> return
+                MenuOption.DEPOSIT -> deposit()
+                MenuOption.BUY_TICKET -> buyTickets()
+                MenuOption.FIND_HISTORY -> findLotteryHistoryByRound()
+                MenuOption.CHECK_WINNING -> checkWinning()
             }
         } catch (e: Exception) {
             OutputUtil.printInvalidInput()
@@ -61,7 +60,7 @@ class LotteryProgram {
     fun checkWinning() {
         OutputUtil.printWinningHeader(lastRound, tickets.size)
 
-        val winningLottery = LotteryTicketGenerator.generateWinningLottery()
+        val winningLottery = WinningLotteryGenerator.generate()
         OutputUtil.printWinningNumbers(winningLottery)
 
         var totalWinningAmount = 0L
@@ -88,9 +87,13 @@ class LotteryProgram {
 
             wallet.pay(totalPrice)
 
-            issueAuto(strategyCounts.auto)
-            issueManual(strategyCounts.manual)
-            issueSemiAuto(strategyCounts.semi)
+            val strategies = createStrategies(strategyCounts)
+
+            strategies.forEach { strategy ->
+                val ticket = LotteryMachine.issue(strategy)
+                tickets.add(ticket)
+                OutputUtil.printTicket(ticket)
+            }
 
             OutputUtil.printIssued(wallet.balance)
             entry()
@@ -100,29 +103,19 @@ class LotteryProgram {
         }
     }
 
-    fun issueAuto(count: Int) =
-        repeat(count) {
-            val ticket = LotteryMachine.issue(AutoTicketIssueStrategy())
-            tickets.add(ticket)
-            OutputUtil.printAutoTicket(ticket)
-        }
-
-    fun issueManual(count: Int) =
-        repeat(count) {
-            OutputUtil.printManualInputPrompt()
-            val numbers = InputUtil.receiveLotteryNumbers()
-            val ticket = LotteryMachine.issue(ManualTicketIssueStrategy(numbers))
-            tickets.add(ticket)
-            OutputUtil.printManualTicket(ticket)
-        }
-
-    fun issueSemiAuto(count: Int) =
-        repeat(count) {
-            OutputUtil.printSemiAutoInManualInputPrompt()
-            val fixedNumbers = InputUtil.receiveSemiAutoNumbers()
-            val ticket = LotteryMachine.issue(SemiAutoTicketIssueStrategy(fixedNumbers))
-            tickets.add(ticket)
-            OutputUtil.printSemiAutoTicket(ticket)
+    private fun createStrategies(counts: StrategyCounts): List<TicketIssueStrategy> =
+        buildList {
+            repeat(counts.auto) {
+                add(AutoTicketIssueStrategy())
+            }
+            repeat(counts.manual) {
+                OutputUtil.printManualInputPrompt()
+                add(ManualTicketIssueStrategy(InputUtil.receiveLotteryNumbers()))
+            }
+            repeat(counts.semi) {
+                OutputUtil.printSemiAutoInManualInputPrompt()
+                add(SemiAutoTicketIssueStrategy(InputUtil.receiveSemiAutoNumbers()))
+            }
         }
 
     companion object {

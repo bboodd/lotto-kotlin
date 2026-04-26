@@ -14,7 +14,9 @@ object OutputUtil {
         println("\n현재 잔액은 ${balance}원 입니다.")
         println("현재 회차는 ${round}회 입니다")
         println("진행을 원하시는 번호를 입력 해 주세요.")
-        println("0. 프로그램 종료 1. 입금 2. 로또 구매 3. 이전 회차 당첨 번호 확인 4. ${round}회차 종료 및 로또 당첨 확인")
+        println(
+            "${MenuOption.EXIT.value}. 프로그램 종료 ${MenuOption.DEPOSIT.value}. 입금 ${MenuOption.BUY_TICKET.value}. 로또 구매 ${MenuOption.FIND_HISTORY.value}. 이전 회차 당첨 번호 확인 ${MenuOption.CHECK_WINNING.value}. ${round}회차 종료 및 로또 당첨 확인",
+        )
     }
 
     fun printInvalidInput() = println("잘못된 입력입니다 다시 입력해 주세요.")
@@ -67,22 +69,15 @@ object OutputUtil {
 
     fun printFileError(message: String?) = println("파일 관련 오류가 발생했습니다: $message")
 
-    fun printAutoTicket(ticket: LotteryTicket) = println("[자동] $ticket")
+    fun printTicket(ticket: LotteryTicket) = println("[$ticket]")
 
-    fun printManualTicket(ticket: LotteryTicket) = println("[수동] $ticket")
+    fun printManualInputPrompt() =
+        println(
+            "${LotteryTicket.TICKET_SIZE}개의 번호를 입력해 주세요 (${LotteryNumber.MIN}-${LotteryNumber.MAX} 사이의 숫자를 띄어쓰기로 구분하여 입력 해 주세요)",
+        )
 
-    fun printSemiAutoTicket(ticket: LotteryTicket) = println("[반자동] $ticket")
-
-    fun printManualInputPrompt() = println("6개의 번호를 입력해 주세요 (1-45 사이의 숫자를 띄어쓰기로 구분하여 입력 해 주세요)")
-
-    fun printSemiAutoInManualInputPrompt() = println("수동으로 선택할 번호들을 띄어쓰기로 구분하여 입력해 주세요 1개~6개  (나머지 자동)")
-
-    fun printLotteryNumberNotInRange(
-        min: Int,
-        max: Int,
-    ) = println("로또 번호는 $min 과 $max 사이여야 합니다.")
-
-    fun printIncorrectLotteryTicketSize() = println("로또 번호는 6개여야 합니다.")
-
-    fun printBonusNumberIsDoNotInTicketNumber() = println("보너스 번호는 당첨 번호와 중복될 수 없습니다.")
+    fun printSemiAutoInManualInputPrompt() =
+        println(
+            "수동으로 선택할 번호들을 띄어쓰기로 구분하여 입력해 주세요 ${TicketIssueStrategy.SEMI_AUTO_MIN_MANUAL_TICKET_SIZE}개~${TicketIssueStrategy.SEMI_AUTO_MAX_MANUAL_TICKET_SIZE}개  (나머지 자동)",
+        )
 }

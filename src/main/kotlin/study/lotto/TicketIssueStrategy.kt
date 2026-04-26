@@ -1,5 +1,7 @@
 package study.lotto
 
+import study.lotto.LotteryNumber.Companion.ALL_NUMBERS
+
 data class StrategyCounts(
     val auto: Int,
     val manual: Int,
@@ -17,17 +19,31 @@ interface TicketIssueStrategy {
 }
 
 class AutoTicketIssueStrategy : TicketIssueStrategy {
-    override fun issueTicket(): LotteryTicket = LotteryTicketGenerator.generateAuto()
+    override fun issueTicket(): LotteryTicket {
+        val numbers =
+            ALL_NUMBERS
+                .shuffled()
+                .take(LotteryTicket.TICKET_SIZE)
+                .toSortedSet()
+        return LotteryTicket(numbers)
+    }
 }
 
 class ManualTicketIssueStrategy(
-    private val manualNumber: List<LotteryNumber>,
+    private val manualNumbers: List<LotteryNumber>,
 ) : TicketIssueStrategy {
-    override fun issueTicket(): LotteryTicket = LotteryTicketGenerator.generateManual(manualNumber)
+    override fun issueTicket() = LotteryTicket(manualNumbers.toSortedSet())
 }
 
 class SemiAutoTicketIssueStrategy(
     private val fixedNumbers: List<LotteryNumber>,
 ) : TicketIssueStrategy {
-    override fun issueTicket(): LotteryTicket = LotteryTicketGenerator.generateSemiAuto(fixedNumbers)
+    override fun issueTicket(): LotteryTicket {
+        val remainCount = LotteryTicket.TICKET_SIZE - fixedNumbers.size
+        val randoms =
+            (ALL_NUMBERS.toSet() - fixedNumbers.toSet())
+                .shuffled()
+                .take(remainCount)
+        return LotteryTicket((fixedNumbers + randoms).toSortedSet())
+    }
 }

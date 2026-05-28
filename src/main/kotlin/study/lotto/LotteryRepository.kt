@@ -9,15 +9,21 @@ data class LotteryHistory(
 )
 
 object LotteryRepository {
+    internal var directory = ""
     private const val FILE_NAME = "lottery_history.csv"
     private const val COLUMN = "round,n1,n2,n3,n4,n5,n6,bonus"
+
+    private fun getFile(): File = File(directory, FILE_NAME)
 
     fun save(
         numbers: List<Int>,
         bonus: Int,
     ) {
         try {
-            val file = File(FILE_NAME)
+            val file = getFile()
+
+            file.parentFile?.mkdirs()
+
             if (!file.exists()) {
                 file.writeText("$COLUMN\n")
             }
@@ -36,7 +42,7 @@ object LotteryRepository {
 
     fun loadAll(): List<LotteryHistory> {
         return try {
-            val file = File(FILE_NAME)
+            val file = getFile()
             if (!file.exists()) return emptyList()
             file
                 .readLines()

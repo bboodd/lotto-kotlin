@@ -6,7 +6,7 @@ object LotteryMatcher {
         userTicket: LotteryTicket,
     ): Rank {
         val matchCount = winningLottery.ticket.getMatchCount(userTicket)
-        val matchBonus = userTicket.numbers.contains(winningLottery.bonus)
+        val matchBonus = userTicket.getNumbers().contains(winningLottery.bonus)
 
         return Rank.valueOf(matchCount, matchBonus)
     }

@@ -71,7 +71,10 @@ class LotteryProgram {
             OutputUtil.printTicketResult(ticket, rank)
         }
 
-        LotteryRepository.save(winningLottery.ticket.numbers.map { it.number }, winningLottery.bonus.number)
+        LotteryRepository.save(
+            winningLottery.ticket.getNumbers().map { it.getNumber() },
+            winningLottery.bonus.getNumber(),
+        )
         lastRound += 1
         OutputUtil.printTotalPrize(totalWinningAmount)
 

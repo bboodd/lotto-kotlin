@@ -10,8 +10,8 @@ class LotteryNumberTest :
     ShouldSpec({
         context("LotteryNumber 생성") {
             should("1과 45 사이의 숫자로 생성된다.") {
-                LotteryNumber(1).number shouldBe 1
-                LotteryNumber(45).number shouldBe 45
+                LotteryNumber(1).getNumber() shouldBe 1
+                LotteryNumber(45).getNumber() shouldBe 45
             }
 
             should("45 초과의 숫자의 경우 예외를 반환한다.") {

@@ -3,7 +3,6 @@ package study.lotto
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import study.lotto.LotteryNumber.Companion.ALL_NUMBERS
 import java.util.SortedSet
 
 class LotteryTicketTest :
@@ -19,14 +18,14 @@ class LotteryTicketTest :
             should("6개의 번호로 생성된다.") {
                 val numbers = createLotteryNumbers(1, 2, 3, 4, 5, 6)
                 val ticket = LotteryTicket(numbers)
-                ticket.toString() shouldBe "1, 2, 3, 4, 5, 6"
+                ticket.getNumbers().toString() shouldBe "[1, 2, 3, 4, 5, 6]"
             }
 
             should("정렬되어 생성된다.") {
                 val numbers = createLotteryNumbers(6, 5, 4, 3, 2, 1)
                 val ticket = LotteryTicket(numbers)
 
-                ticket.toString() shouldBe "1, 2, 3, 4, 5, 6"
+                ticket.getNumbers().toString() shouldBe "[1, 2, 3, 4, 5, 6]"
             }
 
             should("번호가 6개 미만일시 예외가 발생한다.") {

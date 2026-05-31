@@ -15,12 +15,12 @@ class LotteryNumberTest :
             }
 
             should("45 초과의 숫자의 경우 예외를 반환한다.") {
-                val exception = shouldThrow<IllegalArgumentException> { LotteryNumber(46) }
+                val exception = shouldThrow<IllegalArgumentException> { LotteryNumber(LotteryNumber.MAX + 1) }
                 exception.message shouldBe "로또 번호는 1 과 45 사이여야 합니다."
             }
 
             should("1 미만의 숫자의 경우 예외를 반환한다.") {
-                val exception = shouldThrow<IllegalArgumentException> { LotteryNumber(0) }
+                val exception = shouldThrow<IllegalArgumentException> { LotteryNumber(LotteryNumber.MIN - 1) }
                 exception.message shouldBe "로또 번호는 1 과 45 사이여야 합니다."
             }
         }

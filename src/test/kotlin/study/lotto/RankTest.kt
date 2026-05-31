@@ -7,28 +7,34 @@ class RankTest :
     ShouldSpec({
         context("Rank.valueOf 등수 판별 검증") {
 
-            should("당첨 번호 일치 개수와 보너스 번호 일치 여부에 맞는 정확한 등수를 반환한다.") {
-                Rank.valueOf(matchCount = 6, matchBonus = false) shouldBe Rank.FIRST
+            val winningCases =
+                listOf(
+                    Triple(6, false, Rank.FIRST),
+                    Triple(5, true, Rank.SECOND),
+                    Triple(5, false, Rank.THIRD),
+                    Triple(4, false, Rank.FOURTH),
+                    Triple(3, false, Rank.FIFTH),
+                )
 
-                Rank.valueOf(matchCount = 5, matchBonus = true) shouldBe Rank.SECOND
-
-                Rank.valueOf(matchCount = 5, matchBonus = false) shouldBe Rank.THIRD
-
-                Rank.valueOf(matchCount = 4, matchBonus = false) shouldBe Rank.FOURTH
-
-                Rank.valueOf(matchCount = 3, matchBonus = false) shouldBe Rank.FIFTH
+            winningCases.forEach { (matchCount, matchBonus, expectedRank) ->
+                should("일치 개수 ${matchCount}개, 보너스 일치 여부 ${matchBonus}일 때 ${expectedRank.comment}를 반환한다.") {
+                    Rank.valueOf(matchCount, matchBonus) shouldBe expectedRank
+                }
             }
 
-            should("당첨 조건에 미치지 못하는 일치 개수면 LOSE(꽝)를 반환한다.") {
-                Rank.valueOf(matchCount = 2, matchBonus = false) shouldBe Rank.LOSE
-                Rank.valueOf(matchCount = 1, matchBonus = true) shouldBe Rank.LOSE
-                Rank.valueOf(matchCount = 0, matchBonus = false) shouldBe Rank.LOSE
-            }
+            val loseCases =
+                listOf(
+                    Triple(2, false, "당첨 조건에 미치지 못하는 일치 개수 (2개)"),
+                    Triple(1, true, "당첨 조건에 미치지 못하는 일치 개수 (1개)"),
+                    Triple(0, false, "당첨 조건에 미치지 못하는 일치 개수 (0개)"),
+                    Triple(4, true, "enum에 정의되지 않은 조합 (4개 일치 + 보너스 일치)"),
+                    Triple(6, true, "enum에 정의되지 않은 조합 (6개 일치 + 보너스 일치)"),
+                )
 
-            should("enum에 정의되지 않은 조건의 조합이 들어오면 LOSE를 반환한다.") {
-                Rank.valueOf(matchCount = 4, matchBonus = true) shouldBe Rank.LOSE
-
-                Rank.valueOf(matchCount = 6, matchBonus = true) shouldBe Rank.LOSE
+            loseCases.forEach { (matchCount, matchBonus, description) ->
+                should("$description -> LOSE(꽝)를 반환한다.") {
+                    Rank.valueOf(matchCount, matchBonus) shouldBe Rank.LOSE
+                }
             }
         }
     })

@@ -54,11 +54,17 @@ class LotteryMatcherTest :
             }
 
             should("당첨 번호가 2개 이하로 일치하면 LOSE(꽝)를 반환한다.") {
-                LotteryMatcher.match(winningLottery, createLotteryTicket(1, 2, 8, 9, 10, 11)) shouldBe Rank.LOSE
+                val loseCases =
+                    listOf(
+                        intArrayOf(1, 2, 8, 9, 10, 11), // 2개 일치
+                        intArrayOf(1, 8, 9, 10, 11, 12), // 1개 일치
+                        intArrayOf(8, 9, 10, 11, 12, 13), // 0개 일치
+                    )
 
-                LotteryMatcher.match(winningLottery, createLotteryTicket(1, 8, 9, 10, 11, 12)) shouldBe Rank.LOSE
-
-                LotteryMatcher.match(winningLottery, createLotteryTicket(8, 9, 10, 11, 12, 13)) shouldBe Rank.LOSE
+                loseCases.forEach { numbers ->
+                    val userTicket = createLotteryTicket(*numbers)
+                    LotteryMatcher.match(winningLottery, userTicket) shouldBe Rank.LOSE
+                }
             }
         }
     })

@@ -3,7 +3,6 @@ package study.lotto
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
-import java.util.SortedSet
 
 class TicketIssueStrategyTest :
     ShouldSpec({

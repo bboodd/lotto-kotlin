@@ -15,7 +15,7 @@ class LotteryMachineTest :
 
                 val ticketNumbers = ticket.getNumbers().toList()
 
-                ticketNumbers.size shouldBe 6
+                ticketNumbers.size shouldBe LotteryTicket.TICKET_SIZE
                 ticketNumbers shouldBe expectedNumbers
             }
         }

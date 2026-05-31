@@ -2,7 +2,6 @@ package study.lotto
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldNotContain
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
 class WinningLotteryGeneratorTest :

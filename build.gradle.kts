@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "2.2.21"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
+    id("org.jetbrains.kotlinx.kover") version "0.9.8"
 }
 
 group = "study.lotto"
@@ -12,6 +13,14 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    testImplementation("io.kotest:kotest-runner-junit6:6.1.11")
+    testImplementation("io.kotest:kotest-assertions-core:6.1.11")
+    implementation(kotlin("reflect"))
+    testImplementation("io.mockk:mockk:1.14.11")
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }
 
 kotlin {

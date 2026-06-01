@@ -1,9 +1,7 @@
 package study.lotto
 
-class Wallet(
-    initBalance: Long = 0,
-) {
-    var balance: Long = initBalance
+class Wallet {
+    var balance = 0L
         private set
 
     fun deposit(amount: Long) {

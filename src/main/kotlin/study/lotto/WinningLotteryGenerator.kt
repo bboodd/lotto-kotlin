@@ -5,7 +5,7 @@ import study.lotto.LotteryNumber.Companion.ALL_NUMBERS
 object WinningLotteryGenerator {
     fun generate(): WinningLottery {
         val winningTicket = AutoTicketIssueStrategy().issueTicket()
-        val bonusNumber = (ALL_NUMBERS - winningTicket.numbers).random()
+        val bonusNumber = (ALL_NUMBERS - winningTicket.getNumbers()).random()
         return WinningLottery(winningTicket, bonusNumber)
     }
 }

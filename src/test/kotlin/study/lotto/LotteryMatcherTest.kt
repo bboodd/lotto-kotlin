@@ -18,52 +18,25 @@ class LotteryMatcherTest :
             val bonusNumber = LotteryNumber(7)
             val winningLottery = WinningLottery(winningTicket, bonusNumber)
 
-            should("당첨 번호 6개가 모두 일치하면 FIRST(1등)를 반환한다.") {
-                val userTicket = createLotteryTicket(1, 2, 3, 4, 5, 6)
+            val contexts =
+                listOf(
+                    createLotteryTicket(1, 2, 3, 4, 5, 6) to Rank.FIRST,
+                    createLotteryTicket(1, 2, 3, 4, 5, 7) to Rank.SECOND,
+                    createLotteryTicket(1, 2, 3, 4, 5, 8) to Rank.THIRD,
+                    createLotteryTicket(1, 2, 3, 4, 8, 9) to Rank.FOURTH,
+                    createLotteryTicket(1, 2, 3, 8, 9, 10) to Rank.FIFTH,
+                    createLotteryTicket(1, 2, 8, 9, 10, 11) to Rank.LOSE, // 2개 일치
+                    createLotteryTicket(1, 8, 9, 10, 11, 12) to Rank.LOSE, // 1개 일치
+                    createLotteryTicket(8, 9, 10, 11, 12, 13) to Rank.LOSE, // 0개 일치
+                )
 
-                val result = LotteryMatcher.match(winningLottery, userTicket)
-                result shouldBe Rank.FIRST
-            }
+            for ((ticket, expectedRank) in contexts) {
+                val matchCount = ticket.getMatchCount(winningLottery.ticket)
+                val hasBonus = ticket.getNumbers().contains(bonusNumber)
 
-            should("당첨 번호 5개가 일치하고 보너스 번호가 일치하면 SECOND(2등)를 반환한다.") {
-                val userTicket = createLotteryTicket(1, 2, 3, 4, 5, 7)
-
-                val result = LotteryMatcher.match(winningLottery, userTicket)
-                result shouldBe Rank.SECOND
-            }
-
-            should("당첨 번호 5개가 일치하고 보너스 번호가 불일치하면 THIRD(3등)를 반환한다.") {
-                val userTicket = createLotteryTicket(1, 2, 3, 4, 5, 8)
-
-                val result = LotteryMatcher.match(winningLottery, userTicket)
-                result shouldBe Rank.THIRD
-            }
-
-            should("당첨 번호 4개가 일치하면 FOURTH(4등)를 반환한다.") {
-                val userTicket = createLotteryTicket(1, 2, 3, 4, 8, 9)
-
-                val result = LotteryMatcher.match(winningLottery, userTicket)
-                result shouldBe Rank.FOURTH
-            }
-
-            should("당첨 번호 3개가 일치하면 FIFTH(5등)를 반환한다.") {
-                val userTicket = createLotteryTicket(1, 2, 3, 8, 9, 10)
-
-                val result = LotteryMatcher.match(winningLottery, userTicket)
-                result shouldBe Rank.FIFTH
-            }
-
-            should("당첨 번호가 2개 이하로 일치하면 LOSE(꽝)를 반환한다.") {
-                val loseCases =
-                    listOf(
-                        intArrayOf(1, 2, 8, 9, 10, 11), // 2개 일치
-                        intArrayOf(1, 8, 9, 10, 11, 12), // 1개 일치
-                        intArrayOf(8, 9, 10, 11, 12, 13), // 0개 일치
-                    )
-
-                loseCases.forEach { numbers ->
-                    val userTicket = createLotteryTicket(*numbers)
-                    LotteryMatcher.match(winningLottery, userTicket) shouldBe Rank.LOSE
+                should("당첨 번호 ${matchCount}개 일치하고 보너스 번호 일치 여부가 ${hasBonus}이면 ${expectedRank.comment}을 반환한다.") {
+                    val result = LotteryMatcher.match(winningLottery, ticket)
+                    result shouldBe expectedRank
                 }
             }
         }

@@ -9,17 +9,17 @@ import io.kotest.matchers.shouldBe
 class LotteryNumberTest :
     ShouldSpec({
         context("LotteryNumber 생성") {
-            should("1과 45 사이의 숫자로 생성된다.") {
+            should("${LotteryNumber.MIN}과 ${LotteryNumber.MAX} 사이의 숫자로 생성된다.") {
                 LotteryNumber(1).getNumber() shouldBe 1
                 LotteryNumber(45).getNumber() shouldBe 45
             }
 
-            should("45 초과의 숫자의 경우 예외를 반환한다.") {
+            should("${LotteryNumber.MAX} 초과의 숫자의 경우 예외를 반환한다.") {
                 val exception = shouldThrow<IllegalArgumentException> { LotteryNumber(LotteryNumber.MAX + 1) }
                 exception.message shouldBe "로또 번호는 1 과 45 사이여야 합니다."
             }
 
-            should("1 미만의 숫자의 경우 예외를 반환한다.") {
+            should("${LotteryNumber.MIN} 미만의 숫자의 경우 예외를 반환한다.") {
                 val exception = shouldThrow<IllegalArgumentException> { LotteryNumber(LotteryNumber.MIN - 1) }
                 exception.message shouldBe "로또 번호는 1 과 45 사이여야 합니다."
             }
